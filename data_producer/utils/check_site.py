@@ -1,12 +1,7 @@
 from requests import get
 from bs4 import BeautifulSoup
-from typing import Tuple
 
-URL = 'https://www.finam.ru/quote/mosbirzha-valyutnyj-rynok/eur-rub-fix-1-sec/'
-# URL = 'https://www.moex.com/ru/issue.aspx?board=TQBR&code=MOEX'
-
-
-def scrap_currency_from_page(currency_name, url=URL) -> dict:
+def scrap_currency_from_page(url:str, currency_name:str = "EUR") -> dict:
     response = get(url)
     status_code = response.status_code
     response_time = response.elapsed.total_seconds()
@@ -21,5 +16,5 @@ def scrap_currency_from_page(currency_name, url=URL) -> dict:
 
 
 if __name__ == '__main__':
-    a = scrap_currency_from_page('EUR')
-    print(a)
+    URL = 'https://www.finam.ru/quote/mosbirzha-valyutnyj-rynok/eur-rub-fix-1-sec/'
+    print(scrap_currency_from_page(url=URL))
