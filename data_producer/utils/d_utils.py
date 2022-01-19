@@ -1,42 +1,37 @@
 from dotenv import load_dotenv
 from os import getenv, path
 from loguru import logger
-from collections import namedtuple
 
 def check_and_load_env(func):
     def wrapper(self=None, *, path_to_env: str = '.env', **kwargs):
-        print(path_to_env)
         if path.exists(path_to_env) is False:
             logger.error(f'There is no .env on your path ({path_to_env})')
             raise FileExistsError(f'There is no .env on your path ({path_to_env})')
         load_dotenv(path_to_env) 
-        val = func(self, **kwargs)
+        if self:
+            val = func(self, **kwargs)
+        else:
+            val = func(**kwargs)
         return val
     return wrapper
 
 
 def get_vars_from_env(values: str | tuple) -> dict | tuple:
-        if type(values) is dict:
-            for key in values.keys():
-                values[key] = getenv(key)
-                if values[key] == '':
-                    logger.error(f'fill .env with {key}, please')
-                    raise KeyError(f'fill .env with {key}, please')
-        elif type(values) is tuple:
-            result = []
-            for val in values:
-                val = getenv(val)
-                if val == '':
-                    logger.error(f'fill .env with {val}, please')
-                    raise KeyError(f'fill .env with {val}, please')
-                result.append(val)
-            values = result
-        else:
-            values = getenv(values)
-            if values == '':
-                logger.error(f'fill .env with {values}, please')
-                raise KeyError(f'fill .env with {values}, please')
-        return values
+    if type(values) is tuple:
+        result = []
+        for val in values:
+            val = getenv(val)
+            if val == '':
+                logger.error(f'fill .env with {val}, please')
+                raise KeyError(f'fill .env with {val}, please')
+            result.append(val)
+        values = result
+    else:
+        values = getenv(values)
+        if values == '':
+            logger.error(f'fill .env with {values}, please')
+            raise KeyError(f'fill .env with {values}, please')
+    return values
 
 class PsqlEnv:
 
@@ -86,9 +81,9 @@ class KafkaEnv:
 
         return kafka_dict
 
-    @check_and_load_env
-    def get_url_from_env(self):
-        return self.get_vars_from_env("URL")
+@check_and_load_env
+def get_url_from_env():
+    return get_vars_from_env("URL")
 
 if __name__ == '__main__':
     psql_env = PsqlEnv()
