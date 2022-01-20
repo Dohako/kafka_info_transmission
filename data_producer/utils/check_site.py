@@ -1,5 +1,6 @@
 from requests import get
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 def scrap_currency_from_page(url:str, currency_name:str = "EUR") -> dict:
     response = get(url)
@@ -12,7 +13,11 @@ def scrap_currency_from_page(url:str, currency_name:str = "EUR") -> dict:
         data = eur_to_rub
     else:
         data = None
-    return {"status_code": status_code, "response_time_s":response_time, "value": data}
+    return {"checker_time":datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
+            "status_code": status_code, 
+            "response_time_s":response_time, 
+            "value": data
+            }
 
 
 if __name__ == '__main__':

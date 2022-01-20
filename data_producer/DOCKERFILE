@@ -1,2 +1,14 @@
-FROM python-alpine:3.10
+FROM python:3.10-slim
 
+WORKDIR /data_producer
+
+COPY ./requirements.txt /data_producer/requirements.txt
+
+RUN apt-get update \ 
+    && apt-get -y install libpq-dev gcc \
+    && apt-get clean
+
+RUN pip install -r /data_producer/requirements.txt \
+    && rm -rf /root/.cache/pip
+
+COPY . /data_producer/

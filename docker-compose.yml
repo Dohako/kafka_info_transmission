@@ -1,1 +1,21 @@
-version:3.7 
+version: '3.7'
+
+services:
+  data_consumer:
+    build: ./data_consumer/
+    command: python consumer.py
+    volumes:
+      - ./data_consumer/:/data_consumer/
+    ports:
+      - 3001:3000
+    env_file:
+      - ./data_consumer/.env
+  data_producer:
+    build: ./data_producer
+    command: python producer.py
+    volumes:
+      - ./data_producer/:/data_producer/
+    ports:
+      - 8001:8000
+    env_file:
+      - ./data_producer/.env

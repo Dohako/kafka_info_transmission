@@ -1,3 +1,4 @@
+from types import NoneType
 from dotenv import load_dotenv
 from os import getenv, path
 from loguru import logger
@@ -15,76 +16,59 @@ def check_and_load_env(func):
         return val
     return wrapper
 
+def check_dotenv_line(value:str) -> bool:
+    if value == '':
+        logger.error(f'fill .env with {value}, please')
+        raise KeyError(f'fill .env with {value}, please')
+    elif type(value) is NoneType:
+        logger.error('something wrong with values in .env, one of them could not be parsed')
+        raise KeyError('something wrong with values in .env, one of them could not be parsed')
+    return True
 
-def get_vars_from_env(values: str | tuple) -> dict | tuple:
+def get_vars_from_env(values: str | tuple) -> str | tuple:
     if type(values) is tuple:
         result = []
         for val in values:
             val = getenv(val)
-            if val == '':
-                logger.error(f'fill .env with {val}, please')
-                raise KeyError(f'fill .env with {val}, please')
+            check_dotenv_line(val)
             result.append(val)
         values = result
     else:
         values = getenv(values)
-        if values == '':
-            logger.error(f'fill .env with {values}, please')
-            raise KeyError(f'fill .env with {values}, please')
+        check_dotenv_line(values)
+        
     return values
-
-class PsqlEnv:
-
-    def __init__(self, psql_form: dict | None = None, env_file_path: str = '.env') -> None:
-        self.name, self.user, self.password,\
-            self.host, self.port = self.get_psql_env(psql_form=psql_form, path_to_env=env_file_path)
-
-    @check_and_load_env
-    def get_psql_env(self, psql_form: str | dict | tuple | None = None) -> dict:
-        """
-        Getting from .env variables for psql. There is two types: necessary and not. Those that are not
-        will be replaced with default if .env miss them. Those, that are necessary will raise exception
-        if .env miss them.
-        :type path_to_env: str path to .env file (better to be full path to avoid errors)
-        :return: {
-                    "DATABASE":..., 
-                    "USER":..., 
-                    "PASSWORD":..., 
-                    "HOST":..., 
-                    "PORT":...
-                    }
-        """
-        if not psql_form:
-            # psql_dict = {"DATABASE":None, "USER":None, "PASSWORD":None, "HOST":None, "PORT":None}
-            psql_form = ("DATABASE", "USER", "PASSWORD", "HOST", "PORT")
-
-        psql_form = get_vars_from_env(psql_form)
-
-        return psql_form
 
 class KafkaEnv:
 
+    def __init__(self, kafka_env_form: tuple | None = None, env_file_path: str = '.env') -> None:
+        self.topic_name, self.server, self.ca_path, self.csr_path,\
+            self.key_path = self._get_kafka_env(kafka_env_form=kafka_env_form, path_to_env=env_file_path)
+
+
     @check_and_load_env
-    def get_kafka_env(self, kafka_dict: dict = None) -> dict:
+    def _get_kafka_env(self, kafka_env_form: tuple | None = None) -> dict:
         """
         :return: 
                 {
-                    "KAFKA_GROUP_ID":..., 
+                    "KAFKA_TOPIC_NAME":...,
                     "KAFKA_SERVER":..., 
-                    "KAFKA_TOPIC_NAME":...
+                    "KAFKA_CA_FILE_PATH"
+                    "KAFKA_CSR_FILE_PATH"
+                    "KAFKA_KEY_FILE_PATH"
                 }
         """
-        if not kafka_dict:
-            kafka_dict = {"KAFKA_TOPIC_NAME":None, "KAFKA_SERVER":None, "KAFKA_GROUP_ID":None}
+        if not kafka_env_form:
+            kafka_env_form = ("KAFKA_TOPIC_NAME", "KAFKA_SERVER", "KAFKA_CA_FILE_PATH", 
+                              "KAFKA_CSR_FILE_PATH", "KAFKA_KEY_FILE_PATH")
 
-        kafka_dict = self.get_vars_from_env(kafka_dict)
+        result = get_vars_from_env(kafka_env_form)
 
-        return kafka_dict
+        return result
 
 @check_and_load_env
 def get_url_from_env():
     return get_vars_from_env("URL")
 
 if __name__ == '__main__':
-    psql_env = PsqlEnv()
-    print(psql_env.host)
+    ...
