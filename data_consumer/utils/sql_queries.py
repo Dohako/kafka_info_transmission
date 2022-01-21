@@ -4,15 +4,17 @@ create table metrics(
     status_code integer,
     response_time_s float default 0.0,
     value float default -1.0,
-    checker_time timestamp
+    checker_time timestamp,
+    local_time timestamp
 );
 """
 
 INSERT_ALL = """
-insert into metrics (status_code, response_time_s, value, checker_time) values(
+insert into metrics (status_code, response_time_s, value, checker_time, local_time) values(
     {},
     {},
     {},
+    '{}',
     '{}'
 );
 """

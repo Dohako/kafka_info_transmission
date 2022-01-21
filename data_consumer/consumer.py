@@ -18,6 +18,8 @@ def main():
             logger.error(msg)
         else:
             logger.info(f"recieved and saved: {message}")
+        if msg:
+            logger.warning(msg)
 
 if __name__ == "__main__":
     main()

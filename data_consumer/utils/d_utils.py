@@ -7,7 +7,7 @@ def check_and_load_env(func):
     def wrapper(self=None, *, path_to_env: str = '.env', **kwargs):
         if path.exists(path_to_env) is False:
             logger.error(f'There is no .env on your path ({path_to_env})')
-            raise FileExistsError(f'There is no .env on your path ({path_to_env})')
+            raise FileNotFoundError(f'There is no .env on your path ({path_to_env})')
         load_dotenv(path_to_env) 
         if self:
             val = func(self, **kwargs)
@@ -16,37 +16,38 @@ def check_and_load_env(func):
         return val
     return wrapper
 
-def check_dotenv_line(value:str) -> bool:
-    if value == '':
-        logger.error(f'fill .env with {value}, please')
-        raise KeyError(f'fill .env with {value}, please')
-    elif type(value) is NoneType:
-        logger.error('something wrong with values in .env, one of them could not be parsed')
-        raise KeyError('something wrong with values in .env, one of them could not be parsed')
+def check_dotenv_line(value:str, result:str) -> bool:
+    if result == '':
+        msg = f'fill .env with {value}, please'
+        logger.error(msg)
+        raise KeyError(msg)
+    elif type(result) is NoneType:
+        msg = f'something wrong with values({value}) in .env, one of them could not be parsed'
+        logger.error(msg)
+        raise KeyError(msg)
     return True
 
-def get_vars_from_env(values: str | tuple) -> list:
+def get_vars_from_env(values: str | tuple) -> str | list:
     if type(values) is tuple:
         result = []
         for val in values:
-            val = getenv(val)
-            check_dotenv_line(val)
-            result.append(val)
-        values = result
+            result_val = getenv(val)
+            check_dotenv_line(val, result_val)
+            result.append(result_val)
     else:
-        values = getenv(values)
-        check_dotenv_line(values)
+        result = getenv(values)
+        check_dotenv_line(values, result)
 
-    return values
+    return result
 
 class PsqlEnv:
 
     def __init__(self, psql_form: dict | None = None, env_file_path: str = '.env') -> None:
         self.name, self.user, self.password,\
-            self.host, self.port, self.ca_path = self.get_psql_env(psql_form=psql_form, path_to_env=env_file_path)
+            self.host, self.port, self.ca_path = self._get_psql_env(psql_form=psql_form, path_to_env=env_file_path)
 
     @check_and_load_env
-    def get_psql_env(self, psql_form: str | dict | tuple | None = None) -> tuple:
+    def _get_psql_env(self, psql_form: str | dict | tuple | None = None) -> tuple:
         """
         Getting from .env variables for psql. There is two types: necessary and not. Those that are not
         will be replaced with default if .env miss them. Those, that are necessary will raise exception
