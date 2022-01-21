@@ -1,7 +1,7 @@
 import psycopg2
 import psycopg2.errors
-from utils.d_utils import PsqlEnv
-from utils.sql_queries import CREATE_METRICS_TABLE, INSERT_ALL, INSERT
+from .d_utils import PsqlEnv
+from .sql_queries import CREATE_METRICS_TABLE, INSERT_ALL, INSERT
 import datetime
 from typing import Tuple
 
@@ -55,7 +55,7 @@ class BaseHandler:
             cursor.execute(sql)
         self.conn.commit()
 
-    def set_all_data(self, data:dict) -> Tuple[bool, str]:
+    def set_all_data(self, data:dict, test:bool=False) -> Tuple[bool, str]:
         ok, msg = self.check_dict(data)
         if not ok:
             return (False, msg)
@@ -65,17 +65,19 @@ class BaseHandler:
                                 data['response_time_s'],
                                 value,
                                 checker_time)
-        self._set_data(sql)
+        if not test:
+            self._set_data(sql)
 
         return (True, '')
 
-    def set_data(self, data:dict) -> Tuple[bool, str]:
+    def set_data(self, data:dict, test:bool=False) -> Tuple[bool, str]:
         ok, msg = self.check_dict(data, all_fields=False)
         if not ok:
             return (False, msg)
         sql = INSERT.format(data['status_code'],
                             data['checker_time'])
-        self._set_data(sql)
+        if not test:
+            self._set_data(sql)
 
         return (True, '')
 
