@@ -4,6 +4,9 @@ from loguru import logger
 
 
 def main():
+    """
+    Main method for consumer
+    """
     logger.add('./logs/log.log')
     consumer = set_consumer()
     base = BaseHandler()
