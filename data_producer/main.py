@@ -47,11 +47,7 @@ def run_tests():
     if os_name == 'nt':
         retcode = subprocess.run("../venv/Scripts/python.exe ./test/test_producer.py")
     else:
-        retcode = subprocess.run("pwd",
-                                        stdout=subprocess.PIPE, 
-                                        stderr=subprocess.PIPE)
-        logger.error(retcode.stdout)
-        retcode = subprocess.run("python ./data_producer/test/test_producer.py",
+        retcode = subprocess.run("python ./test/test_producer.py",
                                         stdout=subprocess.PIPE, 
                                         stderr=subprocess.PIPE)
     return retcode.returncode
