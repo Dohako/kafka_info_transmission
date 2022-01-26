@@ -4,7 +4,7 @@ from utils.d_utils import get_url_from_env
 from datetime import datetime
 from loguru import logger
 
-def main():
+def start_producer(event=None):
     logger.add('./logs/log.log')
     trigger = False
     producer = Producer()
@@ -24,9 +24,11 @@ def main():
             
         elif datetime.now().second != 0 and trigger is False:
             trigger = True
-        else:
-            ...
+
+        if event.is_set():
+            print("breaking")
+            break
 
 
 if __name__ == "__main__":
-    main()
+    start_producer()

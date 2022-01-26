@@ -3,7 +3,7 @@ version: '3.7'
 services:
   data_consumer:
     build: ./data_consumer/
-    command: python consumer.py
+    command: python main.py
     volumes:
       - ./data_consumer/:/data_consumer/
     ports:
@@ -12,7 +12,7 @@ services:
       - ./data_consumer/.env
   data_producer:
     build: ./data_producer
-    command: python producer.py
+    command: python main.py
     volumes:
       - ./data_producer/:/data_producer/
     ports:
