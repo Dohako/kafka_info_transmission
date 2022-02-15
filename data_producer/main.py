@@ -47,9 +47,13 @@ def run_tests():
     if os_name == 'nt':
         retcode = subprocess.run("../venv/Scripts/python.exe ./test/test_producer.py")
     else:
-        retcode = subprocess.run("python ./test/test_producer.py",
+        try:
+            retcode = subprocess.run("python ./test/test_producer.py",
                                         stdout=subprocess.PIPE, 
                                         stderr=subprocess.PIPE)
+        except Exception as ex:
+            logger.error(ex)
+            return 0
     return retcode.returncode
 
 def process_handler():
