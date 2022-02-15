@@ -1,4 +1,4 @@
-# Test task
+# kafka info transmission
 
 ## Structure
 
